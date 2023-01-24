@@ -7,7 +7,8 @@ import javax.swing.AbstractAction;
 public class KeyHandler {
     public boolean upArrowPressed, downArrowPressed, leftArrowPressed, rightArrowPressed, enterPressed, escapePressed;
 	public String lastKeyPressed;
-	public boolean item1Pressed = true, item2Pressed, item3Pressed, item4Pressed, item5Pressed, item6Pressed, item7Pressed, item8Pressed, item9Pressed;
+	public boolean item1Pressed = true, item2Pressed, item3Pressed, item4Pressed, item5Pressed, item6Pressed, item7Pressed, item8Pressed, item9Pressed,
+	increaseGameSpeedPressed, decreaseGameSpeedPressed, pauseGameSpeedPressed;
 
 	//Menu Interaction
     public class UpArrowPressedAction extends AbstractAction{
@@ -196,6 +197,33 @@ public class KeyHandler {
 			item8Pressed = false;
 			item9Pressed = true;
 			System.out.println("9 PRESSED");
+		}		
+	}
+
+	//Game speed
+	public class IncreaseGameSpeedPressedAction extends AbstractAction{
+		@Override public void actionPerformed(ActionEvent e) {
+            increaseGameSpeedPressed = true;
+		}		
+	}
+	public class IncreaseGameSpeedReleasedAction extends AbstractAction{
+		@Override public void actionPerformed(ActionEvent e) {
+            increaseGameSpeedPressed = false;
+		}		
+	}
+	public class DecreaseGameSpeedPressedAction extends AbstractAction{
+		@Override public void actionPerformed(ActionEvent e) {
+            decreaseGameSpeedPressed = true;
+		}		
+	}
+	public class DecreaseGameSpeedReleasedAction extends AbstractAction{
+		@Override public void actionPerformed(ActionEvent e) {
+            decreaseGameSpeedPressed = false;
+		}		
+	}
+	public class PauseGameSpeedPressedAction extends AbstractAction{
+		@Override public void actionPerformed(ActionEvent e) {
+            pauseGameSpeedPressed = !pauseGameSpeedPressed;
 		}		
 	}
 }	

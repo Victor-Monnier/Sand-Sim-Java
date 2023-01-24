@@ -9,7 +9,7 @@ public class Game {
     public Cell[][] grid;
     public int width, height;
     public long updates, time;
-    double speed = 0.1, pixelsPerSlot;
+    double speed = 0.05, pixelsPerSlot;
     KeyHandler keyH;
     MouseHandler mouseH;
 
@@ -45,17 +45,18 @@ public class Game {
     public void setElement(int x, int y, Element element) {
         if (checkInBounds(x, y)) {
             element.x = x;
-            element.xOffset = 0;
             element.y = y;
-            element.yOffset = 0;
             element.hasUpdated = true;
             grid[x][y].element = element;
         }
     }
 
-    public void update() {
+    public void update() {        
         updates++;
-        if (updates*speed % 1 == 0) {
+        if (keyH.pauseGameSpeedPressed) {
+            speed = 0.05;
+        }
+        else if (updates % (int) (100/(100*speed+0.01)+0.5) == 0) {
             time++;
             //Resets elements
             for (int col = width-1; col >= 0; col--) {
@@ -81,6 +82,22 @@ public class Game {
             }
         }
 
+        //Player controls
+        //Changing game speed
+        if (keyH.increaseGameSpeedPressed && updates % 50 == 0) {
+            speed += 0.01;
+            if (speed > 1) {
+                speed = 1;
+            }
+        }
+        else if (keyH.decreaseGameSpeedPressed && updates % 50 == 0) {
+            speed -= 0.01;
+            if (speed < 0) {
+                speed = 0;
+            }
+        }
+
+        //"Painting" elements
         String selectedElement;
         if (keyH.item1Pressed)
             selectedElement = "stone";
@@ -93,13 +110,13 @@ public class Game {
         else if (keyH.item5Pressed)
             selectedElement = "acid";
         else if (keyH.item6Pressed)
-            selectedElement = "steam";
+            selectedElement = "sponge";
         else if (keyH.item7Pressed)
-            selectedElement = "lava";
+            selectedElement = "steam";
         else if (keyH.item8Pressed)
-            selectedElement = "lava";
+            selectedElement = "empty";
         else if (keyH.item9Pressed)
-            selectedElement = "lava";
+            selectedElement = "empty";
         else
             selectedElement = "stone";
 

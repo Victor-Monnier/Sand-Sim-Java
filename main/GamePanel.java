@@ -50,7 +50,7 @@ public class GamePanel extends JPanel implements Runnable {
     Action enterReleasedAction = keyH.new EnterReleasedAction();
     Action escapePressedAction = keyH.new EscapePressedAction();
     Action escapeReleasedAction = keyH.new EscapeReleasedAction();
-    //Misc
+    //Selecting elements
     Action equip1PressedAction = keyH.new Equip1PressedAction();
     Action equip2PressedAction = keyH.new Equip2PressedAction();
     Action equip3PressedAction = keyH.new Equip3PressedAction();
@@ -60,6 +60,12 @@ public class GamePanel extends JPanel implements Runnable {
     Action equip7PressedAction = keyH.new Equip7PressedAction();
     Action equip8PressedAction = keyH.new Equip8PressedAction();
     Action equip9PressedAction = keyH.new Equip9PressedAction();
+    //Game speed
+    Action increaseGameSpeedPressedAction = keyH.new IncreaseGameSpeedPressedAction();
+    Action increaseGameSpeedReleasedAction = keyH.new IncreaseGameSpeedReleasedAction();
+    Action decreaseGameSpeedPressedAction = keyH.new DecreaseGameSpeedPressedAction();
+    Action decreaseGameSpeedReleasedAction = keyH.new DecreaseGameSpeedReleasedAction();
+    Action pauseGameSpeedPressedAction = keyH.new PauseGameSpeedPressedAction();
     //JComponent that the keybinds are added to
     JComponent thisWindow = Main.window.getRootPane();
     public void updateKeyBindings() {
@@ -88,7 +94,7 @@ public class GamePanel extends JPanel implements Runnable {
 		thisWindow.getActionMap().put("escapePressed", escapePressedAction);
         thisWindow.getInputMap().put(KeyStroke.getKeyStroke("released ESCAPE"), "escapeReleased");
 		thisWindow.getActionMap().put("escapeReleased", escapeReleasedAction);
-        //Misc
+        //Selecting elements
         thisWindow.getInputMap().put(KeyStroke.getKeyStroke("1"), "equip1Pressed");
 		thisWindow.getActionMap().put("equip1Pressed", equip1PressedAction);
         thisWindow.getInputMap().put(KeyStroke.getKeyStroke("2"), "equip2Pressed");
@@ -107,6 +113,25 @@ public class GamePanel extends JPanel implements Runnable {
 		thisWindow.getActionMap().put("equip8Pressed", equip8PressedAction);
         thisWindow.getInputMap().put(KeyStroke.getKeyStroke("9"), "equip9Pressed");
 		thisWindow.getActionMap().put("equip9Pressed", equip9PressedAction);
+        //Game speed
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("UP"), "incSpeedPressed");
+		thisWindow.getActionMap().put("incSpeedPressed", increaseGameSpeedPressedAction);
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("released UP"), "incSpeedReleased");
+		thisWindow.getActionMap().put("incSpeedReleased", increaseGameSpeedReleasedAction);
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("RIGHT"), "incSpeedPressed");
+		thisWindow.getActionMap().put("incSpeedPressed", increaseGameSpeedPressedAction);
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("released RIGHT"), "incSpeedReleased");
+		thisWindow.getActionMap().put("incSpeedReleased", increaseGameSpeedReleasedAction);
+		thisWindow.getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "decSpeedReleased");
+		thisWindow.getActionMap().put("decSpeedReleased", decreaseGameSpeedPressedAction);
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("released DOWN"), "decSpeedPressed");
+		thisWindow.getActionMap().put("decSpeedPressed", decreaseGameSpeedReleasedAction);
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("LEFT"), "decSpeedReleased");
+		thisWindow.getActionMap().put("decSpeedReleased", decreaseGameSpeedPressedAction);
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("released LEFT"), "decSpeedPressed");
+		thisWindow.getActionMap().put("decSpeedPressed", decreaseGameSpeedReleasedAction);
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "pausePressed");
+		thisWindow.getActionMap().put("pausePressed", pauseGameSpeedPressedAction);
     }
 
     //Mouse
