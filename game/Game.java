@@ -47,6 +47,7 @@ public class Game {
             element.x = x;
             element.y = y;
             element.hasUpdated = true;
+            element.timeSinceLastMove = 0;
             grid[x][y].element = element;
         }
     }
@@ -62,6 +63,7 @@ public class Game {
             for (int col = width-1; col >= 0; col--) {
                 for (int row = height-1; row >= 0; row--) {
                     grid[col][row].element.hasUpdated = false;
+                    grid[col][row].element.timeSinceLastMove++;
                 }
             }
 
@@ -110,11 +112,11 @@ public class Game {
         else if (keyH.item5Pressed)
             selectedElement = "acid";
         else if (keyH.item6Pressed)
-            selectedElement = "sponge";
+            selectedElement = "gp";
         else if (keyH.item7Pressed)
-            selectedElement = "steam";
+            selectedElement = "flame";
         else if (keyH.item8Pressed)
-            selectedElement = "empty";
+            selectedElement = "sponge";
         else if (keyH.item9Pressed)
             selectedElement = "empty";
         else
