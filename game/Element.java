@@ -7,8 +7,8 @@ public class Element {
     public Color color;
     public boolean hasUpdated = false,
     saturated = false;
-    public int x, y;
-    public double deltaX = 0, deltaY = 0, viscosity = 1;
+    public int x, y, timeSinceLastMove = 0;
+    public double VX = 0, VY = 1, viscosity = 1;
     public enum State {STATIC, FALLING, LIQUID, GAS, EMPTY};
     State state;
 
@@ -23,7 +23,7 @@ public class Element {
                 state = State.EMPTY;
                 break;
             case "stone":
-                color = new Color((int) (Math.random()*20+90), (int) (Math.random()*20+90), (int) (Math.random()*20+90));
+                color = new Color((int) (Math.random()*11+70), (int) (Math.random()*11+70), (int) (Math.random()*11+70));
                 state = State.STATIC;
                 break;
             case "sponge":
@@ -32,48 +32,39 @@ public class Element {
                 break;
             case "sand":    
                 color = new Color((int) (Math.random()*41+180), (int) (Math.random()*41+180), 0);
-                deltaY = 1;
+                VY = -5;
+                VX = -5;
+                state = State.FALLING;
+                break;
+            case "gp":    
+                color = new Color((int) (Math.random()*21+105), (int) (Math.random()*21+105), (int) (Math.random()*21+90));
+                VY = -5;
+                VX = 5;
                 state = State.FALLING;
                 break;
             case "water":
-                color = new Color(0, 0, (int) (Math.random()*10+215));
+                color = new Color(0, 0, (int) (Math.random()*11+215));
                 viscosity = 0.5;
                 state = State.LIQUID;
                 break;
             case "lava":
-                color = new Color((int) (Math.random()*20+190), (int) (Math.random()*40+30), 0);
+                color = new Color((int) (Math.random()*21+190), (int) (Math.random()*41+30), 0);
                 viscosity = 0.05;
                 state = State.LIQUID;
                 break;
             case "acid":
-                color = new Color(0, (int) (Math.random()*10+215), 0);
-                viscosity = 0.25;
+                color = new Color(0, (int) (Math.random()*11+215), 0);
+                viscosity = 0.75;
                 state = State.LIQUID;
                 break;
             case "steam":
-                color = new Color((int) (Math.random()*10+235), (int) (Math.random()*10+235), (int) (Math.random()*10+235));
+                color = new Color((int) (Math.random()*11+235), (int) (Math.random()*11+235), (int) (Math.random()*11+235));
                 state = State.GAS;
                 break;
-        }
-    }
-
-    public void setDeltaX(double DX) {
-        deltaY = DX;
-        if (deltaX > 1) {
-            deltaX = 1;
-        }
-        else if (deltaX < -1) {
-            deltaX = -1;
-        }
-    }
-
-    public void changeDeltaX(double DX) {
-        deltaX += DX;
-        if (deltaX > 1) {
-            deltaX = 1;
-        }
-        else if (deltaX < -1) {
-            deltaX = -1;
+            case "flame":
+                color = new Color((int) (Math.random()*11+235), (int) (Math.random()*101+30), (int) (Math.random()*11));
+                state = State.GAS;
+                break;
         }
     }
 
@@ -93,80 +84,81 @@ public class Element {
         return 0;
     }
 
-    public void setDeltaY(double DY) {
-        deltaY = DY;
-        if (deltaY > 1) {
-            deltaY = 1;
+    public boolean checkIfMoving() {
+        return getState() != 1 && (Math.abs(VX) >= 1 || (int) VY != 1);
+    }
+
+    public void setDeltaX(double newX) {
+        VX = newX;
+        if (VX > 10) {
+            VX = 10;
         }
-        else if (deltaY < -1) {
-            deltaY = -1;
+        else if (VX < -10) {
+            VX = -10;
         }
     }
 
-    public void changeDeltaY(double DY) {
-        deltaY += DY;
-        if (deltaY > 1) {
-            deltaY = 1;
+    public void changeDeltaX(double xChange) {
+        VX += xChange;
+        if (VX > 10) {
+            VX = 10;
         }
-        else if (deltaY < -1) {
-            deltaY = -1;
+        else if (VX < -10) {
+            VX = -10;
+        }
+    }
+
+    public void setDeltaY(double newY) {
+        VY = newY;
+        if (VY > 10) {
+            VY = 10;
+        }
+        else if (VY < -10) {
+            VY = -10;
+        }
+    }
+
+    public void changeDeltaY(double yChange) {
+        VY += yChange;
+        if (VY > 10) {
+            VY = 10;
+        }
+        else if (VY < -10) {
+            VY = -10;
         }
     }
 
     public void decreaseVelocity() {
-        if (deltaX < 0) {
-            deltaX += 0.005;
+        if (VX > 0) {
+            if (VX > 6)
+                changeDeltaX(-0.5);
+            else if (VX > 4)
+                changeDeltaX(-0.25);
+            else if (VX > 2)
+                changeDeltaX(-0.1);
+            else
+                changeDeltaX(-0.01);
         }
-        if (deltaX > 0) {
-            deltaX -= 0.005;
+        else {
+            if (VX < -6)
+                changeDeltaX(0.5);
+            else if (VX < -4)
+                changeDeltaX(0.25);
+            else if (VX < -2)
+                changeDeltaX(0.1);
+            else
+                changeDeltaX(0.01);
         }
-    }
-
-    public void update(Game game) {
-        if (getState() == 2) {
-            decreaseVelocity();
-            if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.getState() == 5) {
-                if (deltaY < 0.05)
-                    changeDeltaY(0.05);
-                else if (deltaY < 0.25)
-                    changeDeltaY(0.005);
-                else if (deltaY < 0.5)
-                    changeDeltaY(0.001);
-            }
-            else if (game.checkInBounds(x+1, y+1) && game.grid[x+1][y+1].element.getState() == 5) {
-                if (deltaY < 0.025)
-                    changeDeltaY(0.025);
-                else if (deltaY < 0.1)
-                    changeDeltaY(0.0025);
-                else if (deltaY < 0.5)
-                    changeDeltaY(0.0005);
-                if (deltaX < 0.05)
-                    changeDeltaY(0.05);
-                if (deltaX < 0.25)
-                    changeDeltaX(0.005);
-                else if (deltaX < 0.5)
-                    changeDeltaX(0.001);
-            }
-            else if (game.checkInBounds(x-1, y+1) && game.grid[x-1][y+1].element.getState() == 5) {
-                if (deltaY < 0.025)
-                    changeDeltaY(0.025);
-                else if (deltaY < 0.1)
-                    changeDeltaY(0.0025);
-                else if (deltaY < 0.5)
-                    changeDeltaY(0.0005);
-                if (deltaX > -0.05)
-                    changeDeltaY(-0.05);
-                else if (deltaX > -0.25)
-                    changeDeltaX(-0.005);
-                else if (deltaX > -0.5)
-                    changeDeltaX(-0.001);
-            }
-            else {
-                deltaY = 0;
-                decreaseVelocity();
-            }
+        if (VY > 1.1) {
+            changeDeltaY(-0.1);
         }
-
-
+        else {
+            if (VY < -2)
+                changeDeltaY(0.5);
+            else if (VY < 0)
+                changeDeltaY(0.25);
+            else
+                changeDeltaY(0.1);
+        }
     }
 }
