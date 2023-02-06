@@ -16,8 +16,6 @@ public class Cell {
         //Does nothing if element has already been updates
         if (element.hasUpdated)
             return;
-        
-            //TODO deltax and deltay
 
         //If static
         if (element.getState() == 1) {
@@ -193,7 +191,7 @@ public class Cell {
                 element.hasUpdated = true;
                 element.decreaseVelocity();
 
-                if (game.grid[finalX][finalY].element.checkIfMoving() && game.grid[finalX][finalY].element.getState() < 4) {
+                if (game.checkInBounds(finalX, finalY) && game.grid[finalX][finalY].element.checkIfMoving() && game.grid[finalX][finalY].element.getState() < 4) {
                     if (game.grid[finalX][finalY].element.timeSinceLastMove > 5) {
                         element.VX *= 0.75;
                         element.VY = 1;
