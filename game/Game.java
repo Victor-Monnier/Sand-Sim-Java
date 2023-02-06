@@ -144,35 +144,7 @@ public class Game implements Runnable {
             double pointX = point[0]-centerX, pointY = point[1]-centerY;
             if (!checkInBounds(point[0], point[1]))
                 continue;
-            //System.out.println("AMOGUS???");
-            /*if (Math.random() < 0.5 || grid[point[0]][point[1]].element.getState() != 2 && grid[point[0]][point[1]].element.getState() != 3false) {
-                setElement(point[0], point[1], "empty");
-                System.out.println("??????");
-                continue;
-            }*/
-            //If right of center
-            if (pointX > 0) {
-                double angle = Math.atan(pointX/pointY);
-                System.out.println((pointX/pointY)+"\t"+pointX+"/"+pointY+" \t"+Math.atan(pointX/pointY));
-                //System.out.println(angle*180/Math.PI);
-                //getElement(x, y).setDeltaX((size-pointX));
-            }
-            //If left of center
-            else if (pointX < 0) {
-                double angle = Math.atan(pointX/pointY)+Math.PI;
-                System.out.println((pointX/pointY)+"\t"+pointX+"/"+pointY+" \t"+(Math.atan(pointX/pointY)+Math.PI));
-                //System.out.println(angle*180/Math.PI);
-                //getElement(x, y).setDeltaX(-size-pointX);
-            }
-            //If same x as center
-            else {
-                //System.out.println("TEST");
-                System.out.println("NO ANGLE");
-                if (pointX == 0) {
-                    //getElement(x, y).setDeltaX(0);
-                    //getElement(x, y).setDeltaY(-size-pointX);
-                }
-            }
+            //TODO
         }
     }
 
