@@ -50,6 +50,15 @@ public class GamePanel extends JPanel implements Runnable {
     Action enterReleasedAction = keyH.new EnterReleasedAction();
     Action escapePressedAction = keyH.new EscapePressedAction();
     Action escapeReleasedAction = keyH.new EscapeReleasedAction();
+    //Movement
+    Action upPressedAction = keyH.new UpPressedAction();
+    Action upReleasedAction = keyH.new UpReleasedAction();
+    Action downPressedAction = keyH.new DownPressedAction();
+    Action downReleasedAction = keyH.new DownReleasedAction();
+    Action leftPressedAction = keyH.new LeftPressedAction();
+    Action leftReleasedAction = keyH.new LeftReleasedAction();
+    Action rightPressedAction = keyH.new RightPressedAction();
+    Action rightReleasedAction = keyH.new RightReleasedAction();
     //Selecting elements
     Action equip1PressedAction = keyH.new Equip1PressedAction();
     Action equip2PressedAction = keyH.new Equip2PressedAction();
@@ -94,6 +103,23 @@ public class GamePanel extends JPanel implements Runnable {
 		thisWindow.getActionMap().put("escapePressed", escapePressedAction);
         thisWindow.getInputMap().put(KeyStroke.getKeyStroke("released ESCAPE"), "escapeReleased");
 		thisWindow.getActionMap().put("escapeReleased", escapeReleasedAction);
+        //Movement
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("W"), "upPressed");
+		thisWindow.getActionMap().put("upPressed", upPressedAction);
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("released W"), "upReleased");
+		thisWindow.getActionMap().put("upReleased", upReleasedAction);
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("S"), "downPressed");
+		thisWindow.getActionMap().put("downPressed", downPressedAction);
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("released S"), "downReleased");
+		thisWindow.getActionMap().put("downReleased", downReleasedAction);
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("A"), "leftPressed");
+		thisWindow.getActionMap().put("leftPressed", leftPressedAction);
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("released A"), "leftReleased");
+		thisWindow.getActionMap().put("leftReleased", leftReleasedAction);
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("D"), "rightPressed");
+		thisWindow.getActionMap().put("rightPressed", rightPressedAction);
+        thisWindow.getInputMap().put(KeyStroke.getKeyStroke("released D"), "rightReleased");
+		thisWindow.getActionMap().put("rightReleased", rightReleasedAction);
         //Selecting elements
         thisWindow.getInputMap().put(KeyStroke.getKeyStroke("1"), "equip1Pressed");
 		thisWindow.getActionMap().put("equip1Pressed", equip1PressedAction);

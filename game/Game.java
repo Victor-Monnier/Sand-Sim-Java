@@ -8,10 +8,11 @@ import java.util.ArrayList;
 
 public class Game implements Runnable {
     public Cell[][] grid;
-    public int width, height, slicesWide, slicesTall, simulatedWidth = 320, simulatedHeight = 180;
+    public int width, height, slicesWide, slicesTall, simulatedWidth = 640, simulatedHeight = 360, drawnWidth = 320, drawnHeight = 180;
     public long updates, time;
     double speed = 0.05, pixelsPerSlot;
     boolean usingMultiThreading = true;
+    Player player;
     KeyHandler keyH;
     MouseHandler mouseH;
 
@@ -20,15 +21,20 @@ public class Game implements Runnable {
     @Override
     public void run() {
         int ID = Integer.parseInt(Thread.currentThread().getName());
-        int leftLimit = simulatedWidth/slicesWide*(ID%slicesWide);
-        int rightLimit = simulatedWidth/slicesWide*(ID%slicesWide+1);
-        int topLimit = simulatedHeight/slicesTall*(ID/slicesWide);
-        int bottomLimit = simulatedHeight/slicesTall*(ID/slicesWide+1);
-        if (bottomLimit > simulatedHeight)
-            bottomLimit = simulatedHeight;
+        int leftLimit = (int) (simulatedWidth/slicesWide*(ID%slicesWide)+player.x-simulatedWidth/2);
+        int rightLimit = (int) (simulatedWidth/slicesWide*(ID%slicesWide+1)+player.x-simulatedWidth/2);
+        int topLimit = (int) (simulatedHeight/slicesTall*(ID/slicesWide)+player.y-simulatedHeight/2);
+        int bottomLimit = (int) (simulatedHeight/slicesTall*(ID/slicesWide+1)+player.y-simulatedHeight/2);
+        if (bottomLimit > player.y+simulatedHeight)
+            bottomLimit = (int) (player.y+simulatedHeight);
+
         //Resets elements
-        for (int col = leftLimit; col < rightLimit; col++) {
-            for (int row = topLimit; row < bottomLimit; row++) {
+        for (int col = leftLimit; col < rightLimit && col < width; col++) {
+            if (col < 0)
+                continue;
+            for (int row = topLimit; row < bottomLimit && row < height; row++) {
+                if (row < 0)
+                    continue;
                 grid[col][row].element.hasUpdated = false;
                 grid[col][row].element.timeSinceLastMove++;
             }
@@ -36,16 +42,26 @@ public class Game implements Runnable {
 
         //Starts right if time is even, otherwise from left
         if (time % 10 < 5) {
-            for (int col = rightLimit-1; col >= leftLimit; col--) {
-                for (int row = bottomLimit-1; row >= topLimit; row--) {
-                    grid[col][row].update();
+            for (int col = rightLimit-1; col >= leftLimit && col >= 0; col--) {
+                if (col >= width)
+                    continue;
+                for (int row = bottomLimit-1; row >= topLimit && row >= 0; row--) {
+                    if (row >= height)
+                        continue;
+                    if (grid[col][row].element.getState() != 5)
+                        grid[col][row].update();
                 }
             }
         }
         else {
-            for (int col = leftLimit; col < rightLimit; col++) {
-                for (int row =  bottomLimit-1; row >= topLimit; row--) {
-                    grid[col][row].update();
+            for (int col = leftLimit; col < rightLimit && col < width; col++) {
+                if (col < 0)
+                    continue;
+                for (int row =  bottomLimit-1; row >= topLimit && row >= 0; row--) {
+                    if (row >= height)
+                        continue;
+                    if (grid[col][row].element.getState() != 5)
+                        grid[col][row].update();
                 }
             }
         }
@@ -69,15 +85,22 @@ public class Game implements Runnable {
     public Game(KeyHandler keyH, MouseHandler mouseH) {
         this.keyH = keyH;
         this.mouseH = mouseH;
-        width = 640;
-        height = 360;
+        width = 2000;
+        height = 2000;
         
-        if (1600.0/width < 900.0/height)
+        /*if (1600.0/width < 900.0/height)
             pixelsPerSlot = 1600.0/width;
         else
-            pixelsPerSlot = 900.0/height;
+            pixelsPerSlot = 900.0/height;*/
+        if (1600.0/drawnWidth < 900.0/drawnHeight)
+            pixelsPerSlot = 1600.0/drawnWidth;
+        else
+            pixelsPerSlot = 900.0/drawnHeight;
+        System.out.println(pixelsPerSlot*drawnHeight);
 
         createGrid(width, height);
+
+        player = new Player(this, 100, 100, 100);        
     }
 
     public void createGrid(int width, int height) {
@@ -87,9 +110,16 @@ public class Game implements Runnable {
                 grid[col][row] = new Cell(this, col, row);
             }
         }
+        this.width = width;
+        this.height = height;
         slicesWide = (simulatedWidth-1)/20+1;
         slicesTall = (simulatedHeight-1)/200+1;
+        if (slicesWide > 20)
+            slicesWide = 20;
+        if (slicesTall > 2)
+            slicesTall = 2;
         threads = new Thread[slicesWide][slicesTall];
+        resetThreads();
         System.out.println("\nUpdates distributed in a grid each with a seperate thread. The grid is "+slicesWide+" wide and "+slicesTall+" tall");
     }
 
@@ -163,6 +193,7 @@ public class Game implements Runnable {
 
             time++;
             
+            player.update();
             //Using multithreading (much faster)
             if (usingMultiThreading) {
                 resetThreads();
@@ -178,7 +209,7 @@ public class Game implements Runnable {
                     System.out.println(e);
                 }
             }
-            //Without using multithreading
+            //Without using multithreading NOT FULLY FUNCTIONAL
             else {
                 //Resets elements
                 for (int col = width-1; col >= 0; col--) {
@@ -205,8 +236,8 @@ public class Game implements Runnable {
             }
 
             //Prints out how long this update cycle took
-            if (updates % 500 == 0)
-                System.out.println("Frame time: "+(System.currentTimeMillis()-startTime)+"ms");
+            if (updates % 1000 == 0)
+                System.out.println("Update time: "+(System.currentTimeMillis()-startTime)+"ms");
         }
 
         //Player controls
@@ -223,6 +254,9 @@ public class Game implements Runnable {
                 speed = 0;
             }
         }
+
+        if (updates % 200 == 0 && false)
+            System.out.println("PLAYER X: "+player.x+"\tPLAYER Y: "+player.y);
 
         //"Painting" elements
         Element.Type selectedElement;
@@ -253,21 +287,27 @@ public class Game implements Runnable {
         }
 
         if (mouseH.mouseLeftPressed) {
-            for (int[] point : getPointsInCircle((int) ((mouseH.mouseX+pixelsPerSlot/2.0)/pixelsPerSlot), (int) ((mouseH.mouseY+pixelsPerSlot/2.0)/pixelsPerSlot), 25)) {
+            for (int[] point : getPointsInCircle((int) ((mouseH.mouseX+pixelsPerSlot/2.0)/pixelsPerSlot+player.x-drawnWidth/2), (int) ((mouseH.mouseY+pixelsPerSlot/2.0)/pixelsPerSlot+player.y-drawnHeight/2), 25)) {
                 setElement(point[0], point[1], selectedElement);
             }
         }
         if (mouseH.mouseRightPressed) {
-            setElement((int) (mouseH.mouseX/pixelsPerSlot), (int) (mouseH.mouseY/pixelsPerSlot), Element.Type.MPTY);
+            setElement((int) (mouseH.mouseX/pixelsPerSlot+player.x-drawnWidth/2+0.5), (int) (mouseH.mouseY/pixelsPerSlot+player.y-drawnHeight/2+0.5), Element.Type.MPTY);
         }
     }
 
     public void draw(Graphics2D g2) {
-        for (int col = 0; col < width; col++) {
-            for (int row = 0; row < height; row++) {
+        for (int col = (int) (player.x-drawnWidth/2); col <= (int) (player.x+drawnWidth/2) && col < width; col++) {
+            if (col < 0)
+                continue;
+            for (int row = (int) (player.y-drawnHeight/2); row <= (int) (player.y+drawnHeight/2) && row < height; row++) {
+                if (row < 0)
+                    continue;
                 g2.setColor(grid[col][row].element.color);
-                g2.fillRect((int) (col*pixelsPerSlot+0.5), (int) (row*pixelsPerSlot+0.5), (int) (pixelsPerSlot+0.5), (int) (pixelsPerSlot+0.5));
+                g2.fillRect((int) ((col-player.x+drawnWidth/2)*pixelsPerSlot+0.5), (int) ((row-player.y+drawnHeight/2)*pixelsPerSlot+0.5), (int) (pixelsPerSlot+0.5), (int) (pixelsPerSlot+0.5));
             }
         }
+        
+        player.draw(g2);
     }
 }

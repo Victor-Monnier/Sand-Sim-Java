@@ -1,5 +1,7 @@
 package game;
 
+import java.awt.Graphics2D;
+
 public class Entity {
     Game game = null;
     public int health = 100;
@@ -7,5 +9,5 @@ public class Entity {
     
     public void update() {};
 
-    public void draw() {};
+    public void draw(Graphics2D g2) {};
 }
