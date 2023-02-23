@@ -9,7 +9,7 @@ public class Cell {
         this.game = game;
         this.x = x;
         this.y = y;
-        element = new Element(x, y, "empty");
+        element = new Element(x, y, Element.Type.MPTY);
     }
     
     public void update() {
@@ -19,45 +19,45 @@ public class Cell {
 
         //If static
         if (element.getState() == 1) {
-            if (element.ID.equals("sponge")) {
+            if (element.ID == Element.Type.SPNG) {
                 if (Math.random() < 0.5) {
-                    if (game.checkInBounds(x-1, y-1) && game.grid[x-1][y-1].element.ID.equals("water")) {
-                        game.setElement(x-1, y-1, "empty");
+                    if (game.checkInBounds(x-1, y-1) && game.grid[x-1][y-1].element.ID == Element.Type.WATR) {
+                        game.setElement(x-1, y-1, Element.Type.MPTY);
                         element.saturated = true;
                         return;
                     }
-                    if (game.checkInBounds(x, y-1) && game.grid[x][y-1].element.ID.equals("water")) {
-                        game.setElement(x, y-1, "empty");
+                    if (game.checkInBounds(x, y-1) && game.grid[x][y-1].element.ID == Element.Type.WATR) {
+                        game.setElement(x, y-1, Element.Type.MPTY);
                         element.saturated = true;
                         return;
                     }
-                    if (game.checkInBounds(x+1, y-1) && game.grid[x+1][y-1].element.ID.equals("water")) {
-                        game.setElement(x+1, y-1, "empty");
+                    if (game.checkInBounds(x-1, y-1) && game.grid[x-1][y-1].element.ID == Element.Type.WATR) {
+                        game.setElement(x+1, y-1, Element.Type.MPTY);
                         element.saturated = true;
                         return;
                     }
-                    if (game.checkInBounds(x-1, y) && game.grid[x-1][y].element.ID.equals("water")) {
-                        game.setElement(x-1, y, "empty");
+                    if (game.checkInBounds(x-1, y) && game.grid[x-1][y].element.ID == Element.Type.WATR) {
+                        game.setElement(x-1, y, Element.Type.MPTY);
                         element.saturated = true;
                         return;
                     }
-                    if (game.checkInBounds(x+1, y) && game.grid[x+1][y].element.ID.equals("water")) {
-                        game.setElement(x+1, y, "empty");
+                    if (game.checkInBounds(x+1, y) && game.grid[x+1][y].element.ID == Element.Type.WATR) {
+                        game.setElement(x+1, y, Element.Type.MPTY);
                         element.saturated = true;
                         return;
                     }
-                    if (game.checkInBounds(x-1, y+1) && game.grid[x-1][y+1].element.ID.equals("water")) {
-                        game.setElement(x-1, y+1, "empty");
+                    if (game.checkInBounds(x-1, y+1) && game.grid[x-1][y+1].element.ID == Element.Type.WATR) {
+                        game.setElement(x-1, y+1, Element.Type.MPTY);
                         element.saturated = true;
                         return;
                     }
-                    if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID.equals("water")) {
-                        game.setElement(x, y+1, "empty");
+                    if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID == Element.Type.WATR) {
+                        game.setElement(x, y+1, Element.Type.MPTY);
                         element.saturated = true;
                         return;
                     }
-                    if (game.checkInBounds(x+1, y+1) && game.grid[x+1][y+1].element.ID.equals("water")) {
-                        game.setElement(x+1, y+1, "empty");
+                    if (game.checkInBounds(x+1, y+1) && game.grid[x+1][y+1].element.ID == Element.Type.WATR) {
+                        game.setElement(x+1, y+1, Element.Type.MPTY);
                         element.saturated = true;
                         return;
                     }
@@ -201,21 +201,21 @@ public class Cell {
 
                 if (finalX != x || finalY != y) {
                     game.setElement(finalX, finalY, this.element);
-                    game.setElement(x, y, "empty");
+                    game.setElement(x, y, Element.Type.MPTY);
                 }
             }
             else {
                 if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.getState() == 5) {
                     game.setElement(x, y+1, this.element);
-                    game.setElement(x, y, "empty");
+                    game.setElement(x, y, Element.Type.MPTY);
                 }
                 else if (game.checkInBounds(x+1, y+1) && game.grid[x+1][y+1].element.getState() == 5 && Math.random() < 0.666) {
                     game.setElement(x+1, y+1, this.element);
-                    game.setElement(x, y, "empty");
+                    game.setElement(x, y, Element.Type.MPTY);
                 }
                 else if (game.checkInBounds(x-1, y+1) && game.grid[x-1][y+1].element.getState() == 5 && Math.random() < 0.666) {
                     game.setElement(x-1, y+1, this.element);
-                    game.setElement(x, y, "empty");
+                    game.setElement(x, y, Element.Type.MPTY);
                 }
                 else if (game.checkInBounds(x, y+1) && (game.grid[x][y+1].element.getState() == 3 || game.grid[x][y+1].element.getState() == 4) && Math.random() < 0.3) {
                     Element tempElement = game.grid[x][y+1].element;
@@ -239,122 +239,122 @@ public class Cell {
         //If liquid
         if (element.getState() == 3) {
             //Special interactions for water
-            if (element.ID.equals("water")) {
+            if (element.ID == Element.Type.WATR) {
                 //Forms stone with lava
-                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID.equals("lava")) {
-                    game.setElement(x, y, "steam");
-                    game.setElement(x, y+1, "stone");
+                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID == Element.Type.LAVA) {
+                    game.setElement(x, y, Element.Type.VAPR);
+                    game.setElement(x, y+1, Element.Type.STNE);
                     return;
                 }
-                if (game.checkInBounds(x+1, y) && game.grid[x+1][y].element.ID.equals("lava")) {
-                    game.setElement(x, y, "steam");
-                    game.setElement(x+1, y, "stone");
+                if (game.checkInBounds(x+1, y) && game.grid[x+1][y].element.ID == Element.Type.LAVA) {
+                    game.setElement(x, y, Element.Type.VAPR);
+                    game.setElement(x+1, y, Element.Type.STNE);
                     return;
                 }
-                if (game.checkInBounds(x-1, y) && game.grid[x-1][y].element.ID.equals("lava")) {
-                    game.setElement(x, y, "steam");
-                    game.setElement(x-1, y, "stone");
+                if (game.checkInBounds(x-1, y) && game.grid[x-1][y].element.ID == Element.Type.LAVA) {
+                    game.setElement(x, y, Element.Type.VAPR);
+                    game.setElement(x-1, y, Element.Type.STNE);
                     return;
                 }
             }
             //Special interactions for lava
-            if (element.ID.equals("lava")) {
+            if (element.ID == Element.Type.LAVA) {
                 //Forms stone with water
-                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID.equals("water")) {
-                    game.setElement(x, y, "steam");
-                    game.setElement(x, y+1, "stone");
+                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID == Element.Type.WATR) {
+                    game.setElement(x, y, Element.Type.VAPR);
+                    game.setElement(x, y+1, Element.Type.STNE);
                     return;
                 }
-                if (game.checkInBounds(x+1, y) && game.grid[x+1][y].element.ID.equals("water")) {
-                    game.setElement(x, y, "steam");
-                    game.setElement(x+1, y, "stone");
+                if (game.checkInBounds(x+1, y) && game.grid[x+1][y].element.ID == Element.Type.WATR) {
+                    game.setElement(x, y, Element.Type.VAPR);
+                    game.setElement(x+1, y, Element.Type.STNE);
                     return;
                 }
-                if (game.checkInBounds(x-1, y) && game.grid[x-1][y].element.ID.equals("water")) {
-                    game.setElement(x, y, "steam");
-                    game.setElement(x-1, y, "stone");
+                if (game.checkInBounds(x-1, y) && game.grid[x-1][y].element.ID == Element.Type.WATR) {
+                    game.setElement(x, y, Element.Type.VAPR);
+                    game.setElement(x-1, y, Element.Type.STNE);
                     return;
                 }
 
                 //Destroys sponge; gets cooled if sponge is saturated
-                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID.equals("sponge")) {
+                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID == Element.Type.WATR) {
                     if (game.grid[x][y+1].element.saturated) {
                         game.grid[x][y+1].element.saturated = false;
-                        game.setElement(x, y, "steam");
+                        game.setElement(x, y, Element.Type.VAPR);
                     }
                     else {
-                        game.setElement(x, y+1, "lava");
-                        game.setElement(x, y, "empty");
+                        game.setElement(x, y+1, Element.Type.LAVA);
+                        game.setElement(x, y, Element.Type.MPTY);
                     }
                     return;
                 }
-                if (game.checkInBounds(x+1, y+1) && game.grid[x+1][y].element.ID.equals("sponge")) {
+                if (game.checkInBounds(x+1, y+1) && game.grid[x+1][y].element.ID == Element.Type.SPNG) {
                     if (game.grid[x+1][y+1].element.saturated) {
                         game.grid[x+1][y+1].element.saturated = false;
-                        game.setElement(x, y, "steam");
+                        game.setElement(x, y, Element.Type.VAPR);
                     }
                     else {
-                        game.setElement(x+1, y+1, "lava");
-                        game.setElement(x, y, "empty");
+                        game.setElement(x+1, y+1, Element.Type.LAVA);
+                        game.setElement(x, y, Element.Type.MPTY);
                     }
                     return;
                 }
-                if (game.checkInBounds(x-1, y+1) && game.grid[x-1][y].element.ID.equals("sponge")) {
+                if (game.checkInBounds(x-1, y+1) && game.grid[x-1][y].element.ID == Element.Type.SPNG) {
                     if (game.grid[x-1][y+1].element.saturated) {
                         game.grid[x-1][y+1].element.saturated = false;
-                        game.setElement(x, y, "steam");
+                        game.setElement(x, y, Element.Type.VAPR);
                     }
                     else {
-                        game.setElement(x-1, y+1, "lava");
-                        game.setElement(x, y, "empty");
+                        game.setElement(x-1, y+1, Element.Type.LAVA);
+                        game.setElement(x, y, Element.Type.LAVA);
                     }
                     return;
                 }
 
                 //Melts sand if below
-                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID.equals("sand")) {
+                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID == Element.Type.SAND) {
                     if (Math.random() < 0.5)
-                        game.setElement(x, y, "empty");
-                        game.setElement(x, y+1, "lava");
+                        game.setElement(x, y, Element.Type.MPTY);
+                        game.setElement(x, y+1, Element.Type.LAVA);
                     return;
                 }
             }
             //Special interactions for acid
-            if (element.ID.equals("acid")) {
+            if (element.ID == Element.Type.ACID) {
                 //Melts everything below and to the side
-                if (game.checkInBounds(x, y+1) && !game.grid[x][y+1].element.ID.equals("acid") && game.grid[x][y+1].element.getState() != 5) {
-                    game.setElement(x, y, "empty");
+                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID != Element.Type.ACID && game.grid[x][y+1].element.getState() != 5) {
+                    game.setElement(x, y, Element.Type.MPTY);
                     if (Math.random() < 0.9)
-                        game.setElement(x, y+1, "acid");
+                        game.setElement(x, y+1, Element.Type.ACID);
                     else
-                        game.setElement(x, y+1, "empty");
+                        game.setElement(x, y+1, Element.Type.MPTY);
                     return;
                 }
-                if (game.checkInBounds(x+1, y) && !game.grid[x+1][y].element.ID.equals("acid") && game.grid[x+1][y].element.getState() != 5) {
-                    game.setElement(x, y, "empty");
+                if (game.checkInBounds(x+1, y) && game.grid[x+1][y].element.ID != Element.Type.ACID && game.grid[x+1][y].element.getState() != 5) {
+                    game.setElement(x, y, Element.Type.MPTY);
                     if (Math.random() < 0.9)
-                        game.setElement(x+1, y, "acid");
+                        game.setElement(x+1, y, Element.Type.ACID);
                     else
-                        game.setElement(x+1, y, "empty");
+                        game.setElement(x+1, y, Element.Type.MPTY);
                     return;
                 }
-                if (game.checkInBounds(x-1, y) && !game.grid[x-1][y].element.ID.equals("acid") && game.grid[x-1][y].element.getState() != 5) {
-                    game.setElement(x, y, "empty");
+                if (game.checkInBounds(x-1, y) && game.grid[x-1][y].element.ID != Element.Type.ACID && game.grid[x-1][y].element.getState() != 5) {
+                    game.setElement(x, y, Element.Type.MPTY);
                     if (Math.random() < 0.9)
-                        game.setElement(x-1, y, "acid");
+                        game.setElement(x-1, y, Element.Type.ACID);
                     else
-                        game.setElement(x-1, y, "empty");
+                        game.setElement(x-1, y, Element.Type.MPTY);
                     return;
                 }
             }
             //Handles everything besides acid
             else {
-                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID.equals("acid")) {
-                    game.setElement(x, y, "empty");
+                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID == Element.Type.ACID) {
+                    game.setElement(x, y, Element.Type.MPTY);
                     if (Math.random() < 0.9)
-                        game.setElement(x, y+1, "acid");
+                        game.setElement(x, y+1, Element.Type.ACID);
                     else
-                        game.setElement(x, y+1, "empty");
+                        game.setElement(x, y+1, Element.Type.MPTY);
                     return;
                 }
             }
@@ -491,21 +491,21 @@ public class Cell {
 
                 if (finalX != x || finalY != y) {
                     game.setElement(finalX, finalY, this.element);
-                    game.setElement(x, y, "empty");
+                    game.setElement(x, y, Element.Type.MPTY);
                 }
             }
             else {
                 if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.getState() == 5) {
                     game.setElement(x, y+1, this.element);
-                    game.setElement(x, y, "empty");
+                    game.setElement(x, y, Element.Type.MPTY);
                 }
                 else if (game.checkInBounds(x+1, y+1) && game.grid[x+1][y+1].element.getState() == 5 && Math.random() < 1*element.viscosity) {
                     game.setElement(x+1, y+1, this.element);
-                    game.setElement(x, y, "empty");
+                    game.setElement(x, y, Element.Type.MPTY);
                 }
                 else if (game.checkInBounds(x-1, y+1) && game.grid[x-1][y+1].element.getState() == 5 && Math.random() < 1*element.viscosity) {
                     game.setElement(x-1, y+1, this.element);
-                    game.setElement(x, y, "empty");
+                    game.setElement(x, y, Element.Type.MPTY);
                 }
                 else if (Math.random() < element.viscosity) {
                     //Flowing right first
@@ -529,7 +529,7 @@ public class Cell {
                         }
                         if (hasMoved) {
                             game.setElement(x+distance, y, this.element);
-                            game.setElement(x, y, "empty");
+                            game.setElement(x, y, Element.Type.MPTY);
                             return;
                         }
                         
@@ -547,7 +547,7 @@ public class Cell {
                         }
                         if (hasMoved) {
                             game.setElement(x+distance, y, this.element);
-                            game.setElement(x, y, "empty");
+                            game.setElement(x, y, Element.Type.MPTY);
                             return;
                         }
                     }
@@ -572,7 +572,7 @@ public class Cell {
                         }
                         if (hasMoved) {
                             game.setElement(x+distance, y, this.element);
-                            game.setElement(x, y, "empty");
+                            game.setElement(x, y, Element.Type.MPTY);
                             return;
                         }
                         
@@ -590,7 +590,7 @@ public class Cell {
                         }
                         if (hasMoved) {
                             game.setElement(x+distance, y, this.element);
-                            game.setElement(x, y, "empty");
+                            game.setElement(x, y, Element.Type.MPTY);
                             return;
                         }
                     }
@@ -602,18 +602,18 @@ public class Cell {
         //If gas
         if (element.getState() == 4) {
             //Special interactions for steam
-            if (Math.random() < 0.0001 && element.ID.equals("steam")) {
+            if (Math.random() < 0.0001 && element.ID != Element.Type.VAPR) {
                 //Condensation (1/10,000 chance per update)
                 if (Math.random() < 0.1)
-                    game.setElement(x, y, "water");
+                    game.setElement(x, y, Element.Type.WATR);
                 else
-                    game.setElement(x, y, "empty");
+                    game.setElement(x, y, Element.Type.MPTY);
                 return;
             }
             //Special interactions for flame
-            if (element.ID.equals("flame")) {
+            if (element.ID == Element.Type.FIRE) {
                 if (Math.random() < 0.05) {
-                    game.setElement(x, y, "empty");
+                    game.setElement(x, y, Element.Type.MPTY);
                     return;
                 }
             }
@@ -621,18 +621,18 @@ public class Cell {
             if (game.checkInBounds(x, y-1) && game.grid[x][y-1].element.getState() == 5 && Math.random() < 0.8) {
                 this.element.hasUpdated = true;
                 game.setElement(x, y-1, this.element);
-                game.setElement(x, y, "empty");
+                game.setElement(x, y, Element.Type.MPTY);
                 return;
             }
             else if (game.checkInBounds(x+1, y-1) && game.grid[x+1][y-1].element.getState() == 5 && Math.random() < 0.5) {
                 this.element.hasUpdated = true;
                 game.setElement(x+1, y-1, this.element);
-                game.setElement(x, y, "empty");
+                game.setElement(x, y, Element.Type.MPTY);
             }
             else if (game.checkInBounds(x-1, y-1) && game.grid[x-1][y-1].element.getState() == 5 && Math.random() < 0.5) {
                 this.element.hasUpdated = true;
                 game.setElement(x-1, y-1, this.element);
-                game.setElement(x, y, "empty");
+                game.setElement(x, y, Element.Type.MPTY);
             }
             else if (game.checkInBounds(x, y-1) && (game.grid[x][y-1].element.getState() == 3 || game.grid[x][y-1].element.getState() == 4) && Math.random() < 0.6) {
                 this.element.hasUpdated = true;
@@ -674,7 +674,7 @@ public class Cell {
                     }
                     if (hasMoved) {
                         game.setElement(x+distance, y, this.element);
-                        game.setElement(x, y, "empty");
+                        game.setElement(x, y, Element.Type.MPTY);
                         return;
                     }
                     
@@ -692,7 +692,7 @@ public class Cell {
                     }
                     if (hasMoved) {
                         game.setElement(x+distance, y, this.element);
-                        game.setElement(x, y, "empty");
+                        game.setElement(x, y, Element.Type.MPTY);
                         return;
                     }
                 }
@@ -717,7 +717,7 @@ public class Cell {
                     }
                     if (hasMoved) {
                         game.setElement(x+distance, y, this.element);
-                        game.setElement(x, y, "empty");
+                        game.setElement(x, y, Element.Type.MPTY);
                         return;
                     }
                     
@@ -735,7 +735,7 @@ public class Cell {
                     }
                     if (hasMoved) {
                         game.setElement(x+distance, y, this.element);
-                        game.setElement(x, y, "empty");
+                        game.setElement(x, y, Element.Type.MPTY);
                         return;
                     }
                 }
