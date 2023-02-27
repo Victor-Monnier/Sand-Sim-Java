@@ -55,6 +55,7 @@ public class MouseHandler implements MouseListener, MouseWheelListener, MouseMot
     public void mouseWheelMoved(MouseWheelEvent e) {
         mouseScrolled = true;
         mouseScrollAmount = e.getWheelRotation();
+        System.out.println(mouseScrollAmount);
     }
 
     @Override

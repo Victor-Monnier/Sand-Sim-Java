@@ -4,13 +4,13 @@ import java.awt.Color;
 
 public class Element {
     public enum Type {MPTY, STNE, SPNG, SAND, GUNP, WATR, LAVA, ACID, VAPR, FIRE}
-    public enum State {STATIC, FALLING, LIQUID, GAS, EMPTY};
+    public enum State {EMPTY, STATIC, FALLING, LIQUID, GAS};
     public Type ID;
     public Color color;
     public boolean hasUpdated = false,
     saturated = false;
-    public int x, y, timeSinceLastMove = 0;
-    public double VX = 0, VY = 1, viscosity = 1;
+    public int timeSinceLastMove = 0;
+    public double x, y, vx = 0, vy = 1, viscosity = 1;
     State state;
 
     public Element(int x, int y, Type ID) {
@@ -33,14 +33,10 @@ public class Element {
                 break;
             case SAND:    
                 color = new Color((int) (Math.random()*41+180), (int) (Math.random()*41+180), 0);
-                VY = -5;
-                VX = -5;
                 state = State.FALLING;
                 break;
             case GUNP:    
                 color = new Color((int) (Math.random()*21+105), (int) (Math.random()*21+105), (int) (Math.random()*21+90));
-                VY = -5;
-                VX = 5;
                 state = State.FALLING;
                 break;
             case WATR:
@@ -91,15 +87,11 @@ public class Element {
                 break;
             case "SAND":    
                 color = new Color((int) (Math.random()*41+180), (int) (Math.random()*41+180), 0);
-                VY = -5;
-                VX = -5;
                 this.ID = Type.SAND;
                 state = State.FALLING;
                 break;
             case "GUNP":    
                 color = new Color((int) (Math.random()*21+105), (int) (Math.random()*21+105), (int) (Math.random()*21+90));
-                VY = -5;
-                VX = 5;
                 this.ID = Type.GUNP;
                 state = State.FALLING;
                 break;
@@ -136,6 +128,8 @@ public class Element {
 
     public int getState() {
         switch (state) {
+            case EMPTY:
+                return 0;
             case STATIC:
                 return 1;
             case FALLING:
@@ -144,87 +138,66 @@ public class Element {
                 return 3;
             case GAS:
                 return 4;
-            case EMPTY:
-                return 5;
         }
         return 0;
     }
 
     public boolean checkIfMoving() {
-        return getState() != 1 && (Math.abs(VX) >= 1 || (int) VY != 1);
+        return getState() != 1 && (Math.abs(vx) >= 0.1 || vy == 1);
     }
 
-    public void setDeltaX(double newX) {
-        VX = newX;
-        if (VX > 10) {
-            VX = 10;
+    public void setVX(double newX) {
+        vx = newX;
+        if (vx > 10) {
+            vx = 10;
         }
-        else if (VX < -10) {
-            VX = -10;
-        }
-    }
-
-    public void changeDeltaX(double xChange) {
-        VX += xChange;
-        if (VX > 10) {
-            VX = 10;
-        }
-        else if (VX < -10) {
-            VX = -10;
+        else if (vx < -10) {
+            vx = -10;
         }
     }
 
-    public void setDeltaY(double newY) {
-        VY = newY;
-        if (VY > 10) {
-            VY = 10;
+    public void changeVX(double xChange) {
+        vx += xChange;
+        if (vx > 10) {
+            vx = 10;
         }
-        else if (VY < -10) {
-            VY = -10;
+        else if (vx < -10) {
+            vx = -10;
         }
     }
 
-    public void changeDeltaY(double yChange) {
-        VY += yChange;
-        if (VY > 10) {
-            VY = 10;
+    public void setVY(double newY) {
+        vy = newY;
+        if (vy > 10) {
+            vy = 10;
         }
-        else if (VY < -10) {
-            VY = -10;
+        else if (vy < -10) {
+            vy = -10;
+        }
+    }
+
+    public void changeVY(double yChange) {
+        vy += yChange;
+        if (vy > 10) {
+            vy = 10;
+        }
+        else if (vy < -10) {
+            vy = -10;
         }
     }
 
     public void decreaseVelocity() {
-        if (VX > 0) {
-            if (VX > 6)
-                changeDeltaX(-0.5);
-            else if (VX > 4)
-                changeDeltaX(-0.25);
-            else if (VX > 2)
-                changeDeltaX(-0.1);
-            else
-                changeDeltaX(-0.01);
+        vy *= 0.98;
+        changeVY(0.05);
+        vx *= 0.98;
+        if (Math.abs(vx) < 0.1) {
+            vx = 0;
         }
-        else {
-            if (VX < -6)
-                changeDeltaX(0.5);
-            else if (VX < -4)
-                changeDeltaX(0.25);
-            else if (VX < -2)
-                changeDeltaX(0.1);
-            else
-                changeDeltaX(0.01);
+        if (vy >= 1 && vy < 2) {
+            vy = 1;
         }
-        if (VY > 1.1) {
-            changeDeltaY(-0.1);
-        }
-        else {
-            if (VY < -2)
-                changeDeltaY(0.5);
-            else if (VY < 0)
-                changeDeltaY(0.25);
-            else
-                changeDeltaY(0.1);
+        if (vy >= 2) {
+            changeVY(-0.05);
         }
     }
 }

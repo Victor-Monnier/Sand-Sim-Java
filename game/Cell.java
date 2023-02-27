@@ -70,167 +70,116 @@ public class Cell {
         //If falling solid
         if (element.getState() == 2) {
             if (element.checkIfMoving()) {
-                int xOffset = 0;
-                int yOffset = 0;
-                int lastYOffset = 0;
-                int vx;
-                if (element.VX > 0)
-                    vx = (int) element.VX;
-                else
-                    vx = (int) Math.abs(element.VX)*-1;
-                int vy = (int) element.VY;
-                int finalX = x, finalY = y;
-                boolean collidedX = false, collidedY = false;
-                if (Math.abs(vx) >= 1) {
-                    if (vx > 0) {
-                        while (xOffset <= vx) {
-                            if (!collidedX && (!game.checkInBounds(x+xOffset, y+lastYOffset) || game.grid[x+xOffset][y+lastYOffset].element.getState() < 4 && !game.grid[x+xOffset][y+lastYOffset].element.checkIfMoving())) {
-                                collidedX = true;
-                                finalX = x+xOffset-1;
-                            }
-
-                            yOffset = (int) ((double) xOffset/vx*vy);
-                            if (!collidedY && 
-                                ((!collidedX && (!game.checkInBounds(x+xOffset, y+yOffset) || game.grid[x+xOffset][y+yOffset].element.getState() < 4 && !game.grid[x+xOffset][y+yOffset].element.checkIfMoving())) || 
-                                (collidedX && (!game.checkInBounds(finalX, y+yOffset) || game.grid[finalX][y+yOffset].element.getState() < 4 && !game.grid[finalX][y+yOffset].element.checkIfMoving())))) {
-                                collidedY = true;
-                                if (yOffset > 0)
-                                    finalY = y+yOffset-1;
-                                else
-                                    finalY = y+yOffset+1;
-                            }
-
-                            if (collidedX && collidedY)
-                                break;
-                            if (!collidedY)
-                                lastYOffset = (int) ((double) (xOffset)/vx*vy);
-                            xOffset++;
-                        }
-                    }
-                    else {
-                        while (xOffset >= vx) {
-                            if (!collidedX && (!game.checkInBounds(x+xOffset, y+lastYOffset) || game.grid[x+xOffset][y+lastYOffset].element.getState() < 4 && !game.grid[x+xOffset][y+lastYOffset].element.checkIfMoving())) {
-                                collidedX = true;
-                                finalX = x+xOffset+1;
-                            }
-
-                            yOffset = (int) ((double) xOffset/vx*vy);
-                            if (!collidedY && 
-                                ((!collidedX && (!game.checkInBounds(x+xOffset, y+yOffset) || game.grid[x+xOffset][y+yOffset].element.getState() < 4 && !game.grid[x+xOffset][y+yOffset].element.checkIfMoving())) || 
-                                (collidedX && (!game.checkInBounds(finalX, y+yOffset) || game.grid[finalX][y+yOffset].element.getState() < 4 && !game.grid[finalX][y+yOffset].element.checkIfMoving())))) {
-                                collidedY = true;
-                                if (yOffset > 0)
-                                    finalY = y+yOffset-1;
-                                else
-                                    finalY = y+yOffset+1;
-                            }
-
-                            if (collidedX && collidedY)
-                                break;
-                            if (!collidedY)
-                                lastYOffset = (int) ((double) (xOffset)/vx*vy);
-                            xOffset--;
-                        }
-                    }
-                    if (collidedX)
-                        element.VX /= -10;
-                    else {
-                        if (vx > 0)
-                            finalX = x+xOffset-1;
-                        else 
-                            finalX = x+xOffset+1;
-                    }
-                    if (collidedY) {
-                        if (element.VY > 0) {
-                            element.VX *= 0.75;
-                        }
-                        element.VY /= -10;
-                    }
-                    else {
-                        finalY = y+yOffset;
-                    }
-                }
-                else {
-                    if (vy > 0) {
-                        while (yOffset <= vy) {
-                            if (!game.checkInBounds(x, y+yOffset) || game.grid[x][y+yOffset].element.getState() < 4 && !game.grid[x][y+yOffset].element.checkIfMoving()) {
-                                collidedY = true;
-                                finalY = y+yOffset-1;
-                                break;
-                            }
-
-                            yOffset++;
-                        }
-                    }
-                    else {
-                        while (yOffset >= vy) {
-                            if (!game.checkInBounds(x, y+yOffset) || game.grid[x][y+yOffset].element.getState() < 4 && !game.grid[x][y+yOffset].element.checkIfMoving()) {
-                                collidedY = true;
-                                finalY = y+yOffset+1;
-                                break;
-                            }
-
-                            yOffset--;
-                        }
-                    }
-                    if (collidedY) {
-                        if (element.VY > 0) {
-                            element.VX *= 0.75;
-                        }
-                        element.VY /= -10;
-                    }
-                    else {
-                        if (yOffset > 0)
-                            finalY = y+yOffset-1;
-                        else
-                            finalY = y+yOffset+1;
-                    }
-                }
-
-                //Updates the element in the cell before changing its position
-                element.hasUpdated = true;
                 element.decreaseVelocity();
+                for (int i = 0; i < 10; i++) {
+                    element.y += element.vy/10;
 
-                if (game.checkInBounds(finalX, finalY) && game.grid[finalX][finalY].element.checkIfMoving() && game.grid[finalX][finalY].element.getState() < 4) {
-                    if (game.grid[finalX][finalY].element.timeSinceLastMove > 5) {
-                        element.VX *= 0.75;
-                        element.VY = 1;
+                    if (game.checkInBounds(element.x, element.y) && game.getElement(element.x, element.y).getState() == 2 && ((int) element.x != x || (int) element.y != y) && game.getElement(element.x, element.y).checkIfMoving()) {
+                        element.y -= element.vy/10;
+                        if (element.timeSinceLastMove > 5)
+                            element.vy *= 0.95;
                     }
-                    return;
-                }
+                    else if (!game.checkInBounds(element.x, element.y) || 
+                    game.player.checkIfCellIntersects((int) element.x, (int) element.y) || 
+                    (game.getElement(element.x, element.y).getState() > 0 && game.getElement(element.x, element.y).getState() <= 2) && ((int) element.x != x || (int) element.y != y)) {
+                        element.y -= element.vy/10;
+                        element.vy = 0;
+                    }
+                    else if (game.getElement(element.x, element.y).getState() == 3) {
+                        element.vy *= 0.9;
+                        Element tempElement = game.getElement(element.x, element.y);
+                        game.setElement(element.x, element.y, this.element);
+                        game.setElement(x, y, tempElement);;
+                    }
+                    
+                    element.x += element.vx/10;
 
-                if (finalX != x || finalY != y) {
-                    game.setElement(finalX, finalY, this.element);
+                    if (game.checkInBounds(element.x, element.y) && game.getElement(element.x, element.y).getState() == 2 && ((int) element.x != x || (int) element.y != y) && game.getElement(element.x, element.y).checkIfMoving()) {
+                        element.x -= element.vx/10;
+                        if (element.timeSinceLastMove > 5)
+                            element.vx *= 0.95;
+                    }
+                    else if (!game.checkInBounds(element.x, element.y) || 
+                    game.player.checkIfCellIntersects((int) element.x, (int) element.y) || 
+                    (game.getElement(element.x, element.y).getState() > 0 && game.getElement(element.x, element.y).getState() <= 2) && ((int) element.x != x || (int) element.y != y)) {
+                        element.x -= element.vx/10;
+                        element.vx = 0;
+                    }
+                    else if (game.getElement(element.x, element.y).getState() == 3) {
+                        element.vx *= 0.9;
+                        Element tempElement = game.getElement(element.x, element.y);
+                        game.setElement(element.x, element.y, this.element);
+                        game.setElement(x, y, tempElement);;
+                    }
+
+                    if (element.vx == 0 && element.vy == 0)
+                        break;
+                }
+                game.setElement(element.x, element.y, element);
+                if ((int) element.x != x || (int) element.y != y) {
+                    element.timeSinceLastMove = 0;
                     game.setElement(x, y, Element.Type.MPTY);
                 }
+                else {
+                    element.timeSinceLastMove++;
+                }
             }
-            else {
-                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.getState() == 5) {
+            else if (game.time % 2 == 0) {
+                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.getState() == 0 && !game.player.checkIfCellIntersects(x, y+1)) {
                     game.setElement(x, y+1, this.element);
                     game.setElement(x, y, Element.Type.MPTY);
                 }
-                else if (game.checkInBounds(x+1, y+1) && game.grid[x+1][y+1].element.getState() == 5 && Math.random() < 0.666) {
+                else if (game.checkInBounds(x+1, y+1) && game.grid[x+1][y+1].element.getState() == 0 && !game.player.checkIfCellIntersects(x+1, y+1) && Math.random() < 0.666) {
                     game.setElement(x+1, y+1, this.element);
                     game.setElement(x, y, Element.Type.MPTY);
                 }
-                else if (game.checkInBounds(x-1, y+1) && game.grid[x-1][y+1].element.getState() == 5 && Math.random() < 0.666) {
+                else if (game.checkInBounds(x-1, y+1) && game.grid[x-1][y+1].element.getState() == 0 && !game.player.checkIfCellIntersects(x-1, y+1) && Math.random() < 0.666) {
                     game.setElement(x-1, y+1, this.element);
                     game.setElement(x, y, Element.Type.MPTY);
                 }
-                else if (game.checkInBounds(x, y+1) && (game.grid[x][y+1].element.getState() == 3 || game.grid[x][y+1].element.getState() == 4) && Math.random() < 0.3) {
+                else if (game.checkInBounds(x, y+1) && (game.grid[x][y+1].element.getState() == 3 || game.grid[x][y+1].element.getState() == 4) && !game.player.checkIfCellIntersects(x, y+1) && Math.random() < 0.3) {
                     Element tempElement = game.grid[x][y+1].element;
                     game.setElement(x, y+1, this.element);
                     game.setElement(x, y, tempElement);;
                 }
-                else if (game.checkInBounds(x+1, y+1) && (game.grid[x+1][y+1].element.getState() == 3 || game.grid[x+1][y+1].element.getState() == 4) && Math.random() < 0.1) {
+                else if (game.checkInBounds(x+1, y+1) && (game.grid[x+1][y+1].element.getState() == 3 || game.grid[x+1][y+1].element.getState() == 4) && !game.player.checkIfCellIntersects(x+1, y+1) && Math.random() < 0.1) {
                     Element tempElement = game.grid[x+1][y+1].element;
                     game.setElement(x+1, y+1, this.element);
                     game.setElement(x, y, tempElement);;
                 }
-                else if (game.checkInBounds(x-1, y+1) && (game.grid[x-1][y+1].element.getState() == 3 || game.grid[x-1][y+1].element.getState() == 4) && Math.random() < 0.1) {
+                else if (game.checkInBounds(x-1, y+1) && (game.grid[x-1][y+1].element.getState() == 3 || game.grid[x-1][y+1].element.getState() == 4) && !game.player.checkIfCellIntersects(x-1, y+1) && Math.random() < 0.1) {
+                    Element tempElement = game.grid[x-1][y+1].element;
+                    game.setElement(x-1, y+1, this.element);
+                    game.setElement(x, y, tempElement);
+                }
+            }
+            else {
+                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.getState() == 0 && !game.player.checkIfCellIntersects(x, y+1)) {
+                    game.setElement(x, y+1, this.element);
+                    game.setElement(x, y, Element.Type.MPTY);
+                }
+                else if (game.checkInBounds(x-1, y+1) && game.grid[x-1][y+1].element.getState() == 0 && !game.player.checkIfCellIntersects(x-1, y+1) && Math.random() < 0.666) {
+                    game.setElement(x-1, y+1, this.element);
+                    game.setElement(x, y, Element.Type.MPTY);
+                }
+                else if (game.checkInBounds(x+1, y+1) && game.grid[x+1][y+1].element.getState() == 0 && !game.player.checkIfCellIntersects(x+1, y+1) && Math.random() < 0.666) {
+                    game.setElement(x+1, y+1, this.element);
+                    game.setElement(x, y, Element.Type.MPTY);
+                }
+                else if (game.checkInBounds(x, y+1) && (game.grid[x][y+1].element.getState() == 3 || game.grid[x][y+1].element.getState() == 4) && !game.player.checkIfCellIntersects(x, y+1) && Math.random() < 0.3) {
+                    Element tempElement = game.grid[x][y+1].element;
+                    game.setElement(x, y+1, this.element);
+                    game.setElement(x, y, tempElement);;
+                }
+                else if (game.checkInBounds(x-1, y+1) && (game.grid[x-1][y+1].element.getState() == 3 || game.grid[x-1][y+1].element.getState() == 4) && !game.player.checkIfCellIntersects(x-1, y+1) && Math.random() < 0.1) {
                     Element tempElement = game.grid[x-1][y+1].element;
                     game.setElement(x-1, y+1, this.element);
                     game.setElement(x, y, tempElement);;
+                }
+                else if (game.checkInBounds(x+1, y+1) && (game.grid[x+1][y+1].element.getState() == 3 || game.grid[x+1][y+1].element.getState() == 4) && !game.player.checkIfCellIntersects(x+1, y+1) && Math.random() < 0.1) {
+                    Element tempElement = game.grid[x+1][y+1].element;
+                    game.setElement(x+1, y+1, this.element);
+                    game.setElement(x, y, tempElement);
                 }
             return;
             }
@@ -322,7 +271,7 @@ public class Cell {
             //Special interactions for acid
             if (element.ID == Element.Type.ACID) {
                 //Melts everything below and to the side
-                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID != Element.Type.ACID && game.grid[x][y+1].element.getState() != 5) {
+                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.ID != Element.Type.ACID && game.grid[x][y+1].element.getState() != 0) {
                     game.setElement(x, y, Element.Type.MPTY);
                     if (Math.random() < 0.9)
                         game.setElement(x, y+1, Element.Type.ACID);
@@ -330,7 +279,7 @@ public class Cell {
                         game.setElement(x, y+1, Element.Type.MPTY);
                     return;
                 }
-                if (game.checkInBounds(x+1, y) && game.grid[x+1][y].element.ID != Element.Type.ACID && game.grid[x+1][y].element.getState() != 5) {
+                if (game.checkInBounds(x+1, y) && game.grid[x+1][y].element.ID != Element.Type.ACID && game.grid[x+1][y].element.getState() != 0) {
                     game.setElement(x, y, Element.Type.MPTY);
                     if (Math.random() < 0.9)
                         game.setElement(x+1, y, Element.Type.ACID);
@@ -338,7 +287,7 @@ public class Cell {
                         game.setElement(x+1, y, Element.Type.MPTY);
                     return;
                 }
-                if (game.checkInBounds(x-1, y) && game.grid[x-1][y].element.ID != Element.Type.ACID && game.grid[x-1][y].element.getState() != 5) {
+                if (game.checkInBounds(x-1, y) && game.grid[x-1][y].element.ID != Element.Type.ACID && game.grid[x-1][y].element.getState() != 0) {
                     game.setElement(x, y, Element.Type.MPTY);
                     if (Math.random() < 0.9)
                         game.setElement(x-1, y, Element.Type.ACID);
@@ -360,150 +309,70 @@ public class Cell {
             }
 
             if (element.checkIfMoving()) {
-                int xOffset = 0;
-                int yOffset = 0;
-                int lastYOffset = 0;
-                int vx;
-                if (element.VX > 0)
-                    vx = (int) element.VX;
-                else
-                    vx = (int) Math.abs(element.VX)*-1;
-                int vy = (int) element.VY;
-                int finalX = x, finalY = y;
-                boolean collidedX = false, collidedY = false;
-                if (Math.abs(vx) >= 1) {
-                    if (vx > 0) {
-                        while (xOffset <= vx) {
-                            if (!collidedX && (!game.checkInBounds(x+xOffset, y+lastYOffset) || game.grid[x+xOffset][y+lastYOffset].element.getState() < 4 && !game.grid[x+xOffset][y+lastYOffset].element.checkIfMoving())) {
-                                collidedX = true;
-                                finalX = x+xOffset-1;
-                            }
+                element.decreaseVelocity();
+                for (int i = 0; i < 10; i++) {
+                    element.y += element.vy/10;
 
-                            yOffset = (int) ((double) xOffset/vx*vy);
-                            if (!collidedY && 
-                                ((!collidedX && (!game.checkInBounds(x+xOffset, y+yOffset) || game.grid[x+xOffset][y+yOffset].element.getState() < 4 && !game.grid[x+xOffset][y+yOffset].element.checkIfMoving())) || 
-                                (collidedX && (!game.checkInBounds(finalX, y+yOffset) || game.grid[finalX][y+yOffset].element.getState() < 4 && !game.grid[finalX][y+yOffset].element.checkIfMoving())))) {
-                                collidedY = true;
-                                if (yOffset > 0)
-                                    finalY = y+yOffset-1;
-                                else
-                                    finalY = y+yOffset+1;
-                            }
+                    if (game.checkInBounds(element.x, element.y) && game.getElement(element.x, element.y).getState() == 3 && ((int) element.x != x || (int) element.y != y) && game.getElement(element.x, element.y).checkIfMoving()) {
+                        element.y -= element.vy/10;
+                        if (element.timeSinceLastMove > 5)
+                            element.vy *= 0.95;
+                    }
+                    else if (!game.checkInBounds(element.x, element.y) || 
+                    game.player.checkIfCellIntersects((int) element.x, (int) element.y) || 
+                    (game.getElement(element.x, element.y).getState() > 0 && game.getElement(element.x, element.y).getState() <= 3) && ((int) element.x != x || (int) element.y != y)) {
+                        element.y -= element.vy/10;
+                        element.vy = 0;
+                    }
+                    else if (game.getElement(element.x, element.y).getState() == 4) {
+                        element.vy *= 0.9;
+                        Element tempElement = game.getElement(element.x, element.y);
+                        game.setElement(element.x, element.y, this.element);
+                        game.setElement(x, y, tempElement);;
+                    }
+                    
+                    element.x += element.vx/10;
 
-                            if (collidedX && collidedY)
-                                break;
-                            if (!collidedY)
-                                lastYOffset = (int) ((double) (xOffset)/vx*vy);
-                            xOffset++;
-                        }
+                    if (game.checkInBounds(element.x, element.y) && game.getElement(element.x, element.y).getState() == 3 && ((int) element.x != x || (int) element.y != y) && game.getElement(element.x, element.y).checkIfMoving()) {
+                        element.x -= element.vx/10;
+                        if (element.timeSinceLastMove > 5)
+                            element.vx *= 0.95;
                     }
-                    else {
-                        while (xOffset >= vx) {
-                            if (!collidedX && (!game.checkInBounds(x+xOffset, y+lastYOffset) || game.grid[x+xOffset][y+lastYOffset].element.getState() < 4 && !game.grid[x+xOffset][y+lastYOffset].element.checkIfMoving())) {
-                                collidedX = true;
-                                finalX = x+xOffset+1;
-                            }
+                    else if (!game.checkInBounds(element.x, element.y) || 
+                    game.player.checkIfCellIntersects((int) element.x, (int) element.y) || 
+                    (game.getElement(element.x, element.y).getState() > 0 && game.getElement(element.x, element.y).getState() <= 3) && ((int) element.x != x || (int) element.y != y)) {
+                        element.x -= element.vx/10;
+                        element.vx = 0;
+                    }
+                    else if (game.getElement(element.x, element.y).getState() == 4) {
+                        element.vx *= 0.9;
+                        Element tempElement = game.getElement(element.x, element.y);
+                        game.setElement(element.x, element.y, this.element);
+                        game.setElement(x, y, tempElement);;
+                    }
 
-                            yOffset = (int) ((double) xOffset/vx*vy);
-                            if (!collidedY && 
-                                ((!collidedX && (!game.checkInBounds(x+xOffset, y+yOffset) || game.grid[x+xOffset][y+yOffset].element.getState() < 4 && !game.grid[x+xOffset][y+yOffset].element.checkIfMoving())) || 
-                                (collidedX && (!game.checkInBounds(finalX, y+yOffset) || game.grid[finalX][y+yOffset].element.getState() < 4 && !game.grid[finalX][y+yOffset].element.checkIfMoving())))) {
-                                collidedY = true;
-                                if (yOffset > 0)
-                                    finalY = y+yOffset-1;
-                                else
-                                    finalY = y+yOffset+1;
-                            }
-
-                            if (collidedX && collidedY)
-                                break;
-                            if (!collidedY)
-                                lastYOffset = (int) ((double) (xOffset)/vx*vy);
-                            xOffset--;
-                        }
-                    }
-                    if (collidedX)
-                        element.VX /= -10;
-                    else {
-                        if (vx > 0)
-                            finalX = x+xOffset-1;
-                        else 
-                            finalX = x+xOffset+1;
-                    }
-                    if (collidedY) {
-                        if (element.VY > 0) {
-                            element.VX *= 0.75;
-                        }
-                        element.VY /= -10;
-                    }
-                    else {
-                        finalY = y+yOffset;
-                    }
+                    if (element.vx == 0 && element.vy == 0)
+                        break;
+                }
+                game.setElement(element.x, element.y, element);
+                if ((int) element.x != x || (int) element.y != y) {
+                    element.timeSinceLastMove = 0;
+                    game.setElement(x, y, Element.Type.MPTY);
                 }
                 else {
-                    if (vy > 0) {
-                        while (yOffset <= vy) {
-                            if (!game.checkInBounds(x, y+yOffset) || game.grid[x][y+yOffset].element.getState() < 4 && !game.grid[x][y+yOffset].element.checkIfMoving()) {
-                                collidedY = true;
-                                finalY = y+yOffset-1;
-                                break;
-                            }
-
-                            yOffset++;
-                        }
-                    }
-                    else {
-                        while (yOffset >= vy) {
-                            if (!game.checkInBounds(x, y+yOffset) || game.grid[x][y+yOffset].element.getState() < 4 && !game.grid[x][y+yOffset].element.checkIfMoving()) {
-                                collidedY = true;
-                                finalY = y+yOffset+1;
-                                break;
-                            }
-
-                            yOffset--;
-                        }
-                    }
-                    if (collidedY) {
-                        if (element.VY > 0) {
-                            element.VX *= 0.75;
-                        }
-                        element.VY /= -10;
-                    }
-                    else {
-                        if (yOffset > 0)
-                            finalY = y+yOffset-1;
-                        else
-                            finalY = y+yOffset+1;
-                    }
-                }
-
-                //Updates the element in the cell before changing its position
-                element.hasUpdated = true;
-                element.decreaseVelocity();
-
-                if (game.grid[finalX][finalY].element.checkIfMoving() && game.grid[finalX][finalY].element.getState() < 4) {
-                    if (game.grid[finalX][finalY].element.timeSinceLastMove > 5) {
-                        element.VX *= 0.75;
-                        element.VY = 1;
-                    }
-                    return;
-                }
-
-                if (finalX != x || finalY != y) {
-                    game.setElement(finalX, finalY, this.element);
-                    game.setElement(x, y, Element.Type.MPTY);
+                    element.timeSinceLastMove++;
                 }
             }
             else {
-                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.getState() == 5) {
+                if (game.checkInBounds(x, y+1) && game.grid[x][y+1].element.getState() == 0) {
                     game.setElement(x, y+1, this.element);
                     game.setElement(x, y, Element.Type.MPTY);
                 }
-                else if (game.checkInBounds(x+1, y+1) && game.grid[x+1][y+1].element.getState() == 5 && Math.random() < 1*element.viscosity) {
+                else if (game.checkInBounds(x+1, y+1) && game.grid[x+1][y+1].element.getState() == 0 && Math.random() < 1*element.viscosity) {
                     game.setElement(x+1, y+1, this.element);
                     game.setElement(x, y, Element.Type.MPTY);
                 }
-                else if (game.checkInBounds(x-1, y+1) && game.grid[x-1][y+1].element.getState() == 5 && Math.random() < 1*element.viscosity) {
+                else if (game.checkInBounds(x-1, y+1) && game.grid[x-1][y+1].element.getState() == 0 && Math.random() < 1*element.viscosity) {
                     game.setElement(x-1, y+1, this.element);
                     game.setElement(x, y, Element.Type.MPTY);
                 }
@@ -516,7 +385,7 @@ public class Cell {
                         boolean hasMoved = false;
                         //Trying to flow right
                         while (xOffset <= totalDistance) {
-                            if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 5) {
+                            if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 0) {
                                 distance = xOffset;
                                 hasMoved = true;
                             }
@@ -535,7 +404,7 @@ public class Cell {
                         
                         //Trying to flow left
                         while (xOffset >= -totalDistance) {
-                            if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 5) {
+                            if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 0) {
                                 distance = xOffset;
                                 hasMoved = true;
                             }
@@ -559,7 +428,7 @@ public class Cell {
                         boolean hasMoved = false;
                         //Trying to flow left
                         while (xOffset >= -totalDistance) {
-                            if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 5) {
+                            if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 0) {
                                 distance = xOffset;
                                 hasMoved = true;
                             }
@@ -578,7 +447,7 @@ public class Cell {
                         
                         //Trying to flow right
                         while (xOffset <= totalDistance) {
-                            if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 5) {
+                            if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 0) {
                                 distance = xOffset;
                                 hasMoved = true;
                             }
@@ -618,41 +487,85 @@ public class Cell {
                 }
             }
 
-            if (game.checkInBounds(x, y-1) && game.grid[x][y-1].element.getState() == 5 && Math.random() < 0.8) {
-                this.element.hasUpdated = true;
-                game.setElement(x, y-1, this.element);
-                game.setElement(x, y, Element.Type.MPTY);
-                return;
-            }
-            else if (game.checkInBounds(x+1, y-1) && game.grid[x+1][y-1].element.getState() == 5 && Math.random() < 0.5) {
-                this.element.hasUpdated = true;
-                game.setElement(x+1, y-1, this.element);
-                game.setElement(x, y, Element.Type.MPTY);
-            }
-            else if (game.checkInBounds(x-1, y-1) && game.grid[x-1][y-1].element.getState() == 5 && Math.random() < 0.5) {
-                this.element.hasUpdated = true;
-                game.setElement(x-1, y-1, this.element);
-                game.setElement(x, y, Element.Type.MPTY);
-            }
-            else if (game.checkInBounds(x, y-1) && (game.grid[x][y-1].element.getState() == 3 || game.grid[x][y-1].element.getState() == 4) && Math.random() < 0.6) {
-                this.element.hasUpdated = true;
-                Element tempElement = game.grid[x][y-1].element;
-                game.setElement(x, y-1, this.element);
-                this.element = tempElement;
-            }
-            else if (game.checkInBounds(x+1, y-1) && (game.grid[x+1][y-1].element.getState() == 3 || game.grid[x+1][y-1].element.getState() == 4) && Math.random() < 0.3) {
-                this.element.hasUpdated = true;
-                Element tempElement = game.grid[x+1][y-1].element;
-                game.setElement(x+1, y-1, this.element);
-                this.element = tempElement;
-            }
-            else if (game.checkInBounds(x-1, y-1) && (game.grid[x-1][y-1].element.getState() == 3 || game.grid[x-1][y-1].element.getState() == 4) && Math.random() < 0.3) {
-                this.element.hasUpdated = true;
-                Element tempElement = game.grid[x-1][y-1].element;
-                game.setElement(x-1, y-1, this.element);
-                this.element = tempElement;
+            if (element.checkIfMoving()) {
+                element.decreaseVelocity();
+                for (int i = 0; i < 10; i++) {
+                    element.y += element.vy/10;
+
+                    if (game.checkInBounds(element.x, element.y) && game.getElement(element.x, element.y).getState() == 4 && ((int) element.x != x || (int) element.y != y) && game.getElement(element.x, element.y).checkIfMoving()) {
+                        element.y -= element.vy/10;
+                        if (element.timeSinceLastMove > 5)
+                            element.vy *= 0.95;
+                    }
+                    else if (!game.checkInBounds(element.x, element.y) || 
+                    game.player.checkIfCellIntersects((int) element.x, (int) element.y) || 
+                    game.getElement(element.x, element.y).getState() != 0 && ((int) element.x != x || (int) element.y != y)) {
+                        element.y -= element.vy/10;
+                        element.vy = 0;
+                    }
+                    
+                    element.x += element.vx/10;
+
+                    if (game.checkInBounds(element.x, element.y) && game.getElement(element.x, element.y).getState() == 4 && ((int) element.x != x || (int) element.y != y) && game.getElement(element.x, element.y).checkIfMoving()) {
+                        element.x -= element.vx/10;
+                        if (element.timeSinceLastMove > 5)
+                            element.vx *= 0.95;
+                    }
+                    else if (!game.checkInBounds(element.x, element.y) || 
+                    game.player.checkIfCellIntersects((int) element.x, (int) element.y) || 
+                    game.getElement(element.x, element.y).getState() != 0  && ((int) element.x != x || (int) element.y != y)) {
+                        element.x -= element.vx/10;
+                        element.vx = 0;
+                    }
+
+                    if (element.vx == 0 && element.vy == 0)
+                        break;
+                }
+                game.setElement(element.x, element.y, element);
+                if ((int) element.x != x || (int) element.y != y) {
+                    element.timeSinceLastMove = 0;
+                    game.setElement(x, y, Element.Type.MPTY);
+                }
+                else {
+                    element.timeSinceLastMove++;
+                }
             }
             else {
+                if (game.checkInBounds(x, y-1) && game.grid[x][y-1].element.getState() == 0 && Math.random() < 0.8) {
+                    this.element.hasUpdated = true;
+                    game.setElement(x, y-1, this.element);
+                    game.setElement(x, y, Element.Type.MPTY);
+                    return;
+                }
+                else if (game.checkInBounds(x+1, y-1) && game.grid[x+1][y-1].element.getState() == 0 && Math.random() < 0.5) {
+                    this.element.hasUpdated = true;
+                    game.setElement(x+1, y-1, this.element);
+                    game.setElement(x, y, Element.Type.MPTY);
+                }
+                else if (game.checkInBounds(x-1, y-1) && game.grid[x-1][y-1].element.getState() == 0 && Math.random() < 0.5) {
+                    this.element.hasUpdated = true;
+                    game.setElement(x-1, y-1, this.element);
+                    game.setElement(x, y, Element.Type.MPTY);
+                }
+                else if (game.checkInBounds(x, y-1) && (game.grid[x][y-1].element.getState() == 3 || game.grid[x][y-1].element.getState() == 4) && Math.random() < 0.6) {
+                    this.element.hasUpdated = true;
+                    Element tempElement = game.grid[x][y-1].element;
+                    game.setElement(x, y-1, this.element);
+                    game.setElement(x, y, tempElement);
+                }
+                else if (game.checkInBounds(x+1, y-1) && (game.grid[x+1][y-1].element.getState() == 3 || game.grid[x+1][y-1].element.getState() == 4) && Math.random() < 0.3) {
+                    this.element.hasUpdated = true;
+                    Element tempElement = game.grid[x+1][y-1].element;
+                    game.setElement(x+1, y-1, this.element);
+                    game.setElement(x, y, tempElement);
+                }
+                else if (game.checkInBounds(x-1, y-1) && (game.grid[x-1][y-1].element.getState() == 3 || game.grid[x-1][y-1].element.getState() == 4) && Math.random() < 0.3) {
+                    this.element.hasUpdated = true;
+                    Element tempElement = game.grid[x-1][y-1].element;
+                    game.setElement(x-1, y-1, this.element);
+                    game.setElement(x, y, tempElement);
+                }
+                else {
                 //Flowing right first
                 if (Math.random() < 0.5) {
                     int totalDistance = (int) (Math.random()*2+1);
@@ -661,7 +574,7 @@ public class Cell {
                     boolean hasMoved = false;
                     //Trying to flow right
                     while (xOffset <= totalDistance) {
-                        if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 5) {
+                        if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 0) {
                             distance = xOffset;
                             hasMoved = true;
                         }
@@ -680,7 +593,7 @@ public class Cell {
                     
                     //Trying to flow left
                     while (xOffset >= -totalDistance) {
-                        if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 5) {
+                        if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 0) {
                             distance = xOffset;
                             hasMoved = true;
                         }
@@ -704,7 +617,7 @@ public class Cell {
                     boolean hasMoved = false;
                     //Trying to flow left
                     while (xOffset >= -totalDistance) {
-                        if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 5) {
+                        if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 0) {
                             distance = xOffset;
                             hasMoved = true;
                         }
@@ -723,7 +636,7 @@ public class Cell {
                     
                     //Trying to flow right
                     while (xOffset <= totalDistance) {
-                        if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 5) {
+                        if (game.checkInBounds(x+xOffset, y) && game.grid[x+xOffset][y].element.getState() == 0) {
                             distance = xOffset;
                             hasMoved = true;
                         }
@@ -739,6 +652,7 @@ public class Cell {
                         return;
                     }
                 }
+            }
             }
             return;
         }

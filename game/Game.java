@@ -6,9 +6,11 @@ import main.MouseHandler;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 
+import data.SaveLoad;
+
 public class Game implements Runnable {
     public Cell[][] grid;
-    public int width, height, slicesWide, slicesTall, simulatedWidth = 640, simulatedHeight = 360, drawnWidth = 320, drawnHeight = 180;
+    public int width, height, slicesWide, slicesTall, simulatedWidth = 640, simulatedHeight = 360, drawnWidth = 320, drawnHeight = 180, brushSize = 5;
     public long updates, time;
     double speed = 0.05, pixelsPerSlot;
     boolean usingMultiThreading = true;
@@ -48,7 +50,7 @@ public class Game implements Runnable {
                 for (int row = bottomLimit-1; row >= topLimit && row >= 0; row--) {
                     if (row >= height)
                         continue;
-                    if (grid[col][row].element.getState() != 5)
+                    if (grid[col][row].element.getState() != 0)
                         grid[col][row].update();
                 }
             }
@@ -60,7 +62,7 @@ public class Game implements Runnable {
                 for (int row =  bottomLimit-1; row >= topLimit && row >= 0; row--) {
                     if (row >= height)
                         continue;
-                    if (grid[col][row].element.getState() != 5)
+                    if (grid[col][row].element.getState() != 0)
                         grid[col][row].update();
                 }
             }
@@ -88,10 +90,6 @@ public class Game implements Runnable {
         width = 2000;
         height = 2000;
         
-        /*if (1600.0/width < 900.0/height)
-            pixelsPerSlot = 1600.0/width;
-        else
-            pixelsPerSlot = 900.0/height;*/
         if (1600.0/drawnWidth < 900.0/drawnHeight)
             pixelsPerSlot = 1600.0/drawnWidth;
         else
@@ -116,15 +114,15 @@ public class Game implements Runnable {
         slicesTall = (simulatedHeight-1)/200+1;
         if (slicesWide > 20)
             slicesWide = 20;
-        if (slicesTall > 2)
-            slicesTall = 2;
+        if (slicesTall > 1)
+            slicesTall = 1;
         threads = new Thread[slicesWide][slicesTall];
         resetThreads();
         System.out.println("\nUpdates distributed in a grid each with a seperate thread. The grid is "+slicesWide+" wide and "+slicesTall+" tall");
     }
 
-    public boolean checkInBounds(int x, int y) {
-        return x >= 0 && x < width && y >= 0 && y < height;
+    public boolean checkInBounds(double x, double y) {
+        return x >= 0 && (int) x < width && y >= 0 && (int) y < height;
     }
 
     public void setElement(int x, int y, Element.Type ID) {
@@ -133,19 +131,19 @@ public class Game implements Runnable {
         }
     }
 
-    public void setElement(int x, int y, Element element) {
+    public void setElement(double x, double y, Element element) {
         if (checkInBounds(x, y)) {
             element.x = x;
             element.y = y;
             element.hasUpdated = true;
             element.timeSinceLastMove = 0;
-            grid[x][y].element = element;
+            grid[(int) x][(int) y].element = element;
         }
     }
 
-    public Element getElement(int x, int y) {
+    public Element getElement(double x, double y) {
         if (checkInBounds(x, y)) {
-            return grid[x][y].element;
+            return grid[(int) x][(int) y].element;
         }
         else {
             return null;
@@ -167,24 +165,45 @@ public class Game implements Runnable {
     }
 
     public void explode(int x, int y, double size, double power) {
-        /*double centerX = x;
+        double centerX = x;
         double centerY = y;
         if (size % 2 == 0) {
             centerX -= 0.5;
             centerY -= 0.5;
         }
         for (int[] point : getPointsInCircle(x, y, size)) {
-            double pointX = point[0]-centerX, pointY = point[1]-centerY;
-            if (!checkInBounds(point[0], point[1]))
+            int px = point[0], py = point[1];
+            double distanceX = px-centerX, distanceY = py-centerY;
+            if (!checkInBounds(px, py))
                 continue;
-        }*/
+            if (distanceX >= 0) {
+                getElement(px, py).setVX((double) (size-distanceX)/size*power);
+            }
+            else {
+                getElement(px, py).setVX((double) (-size-distanceX)/size*power);
+            }
+            if (distanceY >= 0) {
+                getElement(px, py).setVY((double) (size-distanceY)/size*power);
+            }
+            else {
+                getElement(px, py).setVY((double) (-size-distanceY)/size*power);
+            }
+            if (getElement(px, py).ID == Element.Type.SAND);
+                System.out.println(getElement(px, py).vx+", "+getElement(px, py).vy);
+        }
     }
 
     public void update() {  
         updates++;
         if (keyH.pauseGameSpeedPressed) {
-            if (updates % 1000 == 0 && keyH.item9Pressed)
-                data.SaveLoad.loadEnvironment(this, 1);
+            if (updates % 1000 == 0) {
+                if (mouseH.mouseScrollAmount > 0 && keyH.upArrowPressed) {
+                    SaveLoad.saveEnvironment(this, mouseH.mouseScrollAmount-1);
+                }
+                else if (keyH.downArrowPressed) {
+                    SaveLoad.loadEnvironment(this, -mouseH.mouseScrollAmount+1);
+                }
+            } 
             speed = 0.05;
         }
         else if (updates % (int) (100/(100*speed+0.01)+0.5) == 0) {
@@ -283,16 +302,24 @@ public class Game implements Runnable {
 
         //TEMP
         if (keyH.enterPressed) {
-            explode((int) (mouseH.mouseX/pixelsPerSlot), (int) (mouseH.mouseY/pixelsPerSlot), 2, 0);
+            explode((int) ((mouseH.mouseX+pixelsPerSlot/2.0)/pixelsPerSlot+player.x-drawnWidth/2), (int) ((mouseH.mouseY+pixelsPerSlot/2.0)/pixelsPerSlot+player.y-drawnHeight/2), 45, 20);
         }
 
         if (mouseH.mouseLeftPressed) {
-            for (int[] point : getPointsInCircle((int) ((mouseH.mouseX+pixelsPerSlot/2.0)/pixelsPerSlot+player.x-drawnWidth/2), (int) ((mouseH.mouseY+pixelsPerSlot/2.0)/pixelsPerSlot+player.y-drawnHeight/2), 25)) {
+            for (int[] point : getPointsInCircle((int) ((mouseH.mouseX+pixelsPerSlot/2.0)/pixelsPerSlot+player.x-drawnWidth/2), (int) ((mouseH.mouseY+pixelsPerSlot/2.0)/pixelsPerSlot+player.y-drawnHeight/2), brushSize)) {
                 setElement(point[0], point[1], selectedElement);
             }
         }
         if (mouseH.mouseRightPressed) {
             setElement((int) (mouseH.mouseX/pixelsPerSlot+player.x-drawnWidth/2+0.5), (int) (mouseH.mouseY/pixelsPerSlot+player.y-drawnHeight/2+0.5), Element.Type.MPTY);
+        }
+        if (mouseH.mouseScrolled && updates % 10 == 0) {
+            if (mouseH.mouseScrollAmount > 0)
+                brushSize++;
+            else 
+                brushSize--;
+            if (brushSize < 0)
+                brushSize = 0;
         }
     }
 
